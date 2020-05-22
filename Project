@@ -1,0 +1,149 @@
+// include library headers here
+#include <iostream>
+#include <stdlib.h>
+#include <time.h>
+using namespace std;
+
+// declare and implement bNode template class here
+template <class T> class bNode{				// binary node class
+
+      T value;						// data value
+      bNode<T> *left;					// pointer to left child
+      bNode<T> *right;					// pointer to right child
+
+public:
+     bNode(T v){value=v; left=right=NULL;}	// constructor
+     template <class U> friend class bTree;	// friend class
+};
+
+
+// declare and implement bTree template class here
+
+template <class T> class bTree{				// binary tree class
+        bNode<T> *root;					// root pointer
+        void destroyTree(bNode<T>*);			// destroy a subtree
+        void insert(T, bNode<T>*);		    		// insert v into a subtree
+        bNode<T>* search(T, bNode<T>*);     			// search v in a subtree
+        void displayTree(bNode<T>*, int, int&);		// display a subtree
+    
+public:
+        bTree(){root=NULL;}				// constructor
+        ~bTree(){destroyTree(root);}				// destructor
+        void insert(T v);					// insert a value
+        bNode<T>* search(T v){return search(v, root);}		// search a value
+        void displayTree(int);					// display tree
+};
+
+// complete bTree member functions  here
+template <class T> void bTree<T>::destroyTree(bNode<T> *t){
+      if(t){
+           destroyTree(t->left);
+           destroyTree(t->right);
+           delete t;
+           t=NULL;
+      }
+}
+template <class T> void bTree<T>::insert(T v, bNode<T> *t){
+      if(v<t->value){
+           if(!t->left)
+	     t->left=new bNode<T>(v);
+           else
+              insert(v, t->left);  
+      }
+      else if(v>t->value){
+           if(!t->right)
+	    t->right=new bNode<T>(v);
+           else
+               insert(v, t->right);               
+      }
+}
+
+template <class T> bNode<T>* bTree<T>::search(T v, bNode<T> *t){
+     if(t){
+          if(v==t->value)
+               return t;
+          if(v<t->value)
+               return search(v, t->left);
+          else
+               return search(v, t->right);
+     }
+     else 
+          return NULL;
+}
+
+template <class T> void bTree<T>::displayTree(bNode<T> *t, int m, int &i){
+      if(t){
+           displayTree(t->left, m, i);
+          cout<<"\t"<<t->value;
+          i++;
+          if(i%m==0)
+	    cout<<endl;
+           displayTree(t->right, m, i);
+      }
+}
+
+template <class T> void bTree<T>::insert(T v){
+     if(!root)
+	root=new bNode<T>(v);
+     else
+	insert(v, root);
+}
+
+template <class T> void bTree<T>::displayTree(int m){
+      if(root){
+	cout<<"Tree Elements:"<<endl;
+	int i=0;
+	displayTree(root, m, i);
+	cout<<endl;
+      }
+      else
+	cout<<"Tree is empty."<<endl;
+}
+
+
+
+
+int main(int argc, char *argv[]){
+    int nc=atoi(argv[1]);
+    int ni=atoi(argv[2]);
+    const int m=8;
+    srand((unsigned) time(NULL));
+
+/* create a bTree instance of char type, insert nc number of random upper case letters into the tree.
+Meantime, display all these letters, m letters per line. */
+    cout<<"Letters inserted in to the character tree:"<<endl;
+    bTree<char> cTree;
+    int i=0;
+    while(i<nc){
+        char c=rand()%26+65;
+        cTree.insert(c);
+        cout<<"\t"<<c;
+        i++;
+        if(i%m==0)
+          cout<<endl;
+     }
+/* display the character tree created, m characters per line */
+    cout<<endl;
+    cTree.displayTree(m);
+
+
+/* create a bTree instance of int type, insert ni number of random integers in the range of [0, 512]
+into the tree. Meantime, display all these integers, m integers per line. */
+      cout<<"Integers inserted in to the integer tree:"<<endl;
+      bTree<int> iTree;
+      i=0;
+      while(i<ni){
+            int v=rand()% 513;
+            iTree.insert(v);
+            cout<<"\t"<<v;
+            i++;
+            if(i%m==0)
+                  cout<<endl;
+      }						
+/* display the integer tree created, m integers per line */
+      cout<<endl;
+      iTree.displayTree(m);
+
+
+return 0;
+}
